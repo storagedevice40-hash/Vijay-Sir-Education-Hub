@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>VSEH PRO - AI AUTOPILOT</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VSEH PRO">
+    <meta name="theme-color" content="#f4f7fe">
+    
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991148.png">
+    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991148.png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        body { 
+            -webkit-tap-highlight-color: transparent; 
+            background-color: #f4f7fe; 
+            font-family: 'Outfit', sans-serif; 
+            overscroll-behavior-y: none;
+            transition: background-color 0.3s ease;
+        }
+        
+        .text-7 { font-size: 7px; line-height: 9px; }
+        .text-8 { font-size: 8px; line-height: 10px; }
+        .text-9 { font-size: 9px; line-height: 12px; }
+        .text-10 { font-size: 10px; line-height: 14px; }
+        .text-11 { font-size: 11px; line-height: 16px; }
+        
+        .rounded-24 { border-radius: 24px; }
+        .rounded-32 { border-radius: 32px; }
+        .max-w-500 { max-width: 500px; margin: 0 auto; }
+        
+        .view-section { display: none; padding-bottom: 120px; padding-top: 10px; }
+        .view-section.active { display: block; animation: fadeUp 0.3s ease-out forwards; }
+        
+        @keyframes fadeUp { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .blink { animation: pulse-soft 1.5s infinite; }
+        
+        .force-uppercase { text-transform: uppercase; }
+        ::-webkit-scrollbar { display: none; }
+        
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .glass-nav { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .grad-card-1 { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .grad-card-2 { background: linear-gradient(135deg, #10b981, #3b82f6); }
+        .grad-card-3 { background: linear-gradient(135deg, #f43f5e, #f97316); }
+        .text-grad { background: linear-gradient(to right, #7c3aed, #4f46e5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .ai-glow-card { background: linear-gradient(135deg, #1e1b4b, #311042); border: 1px solid #a855f7; }
+        
+        .mobile-input {
+            background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px;
+            padding: 14px 16px; font-size: 13px !important; font-weight: 700; width: 100%;
+            color: #1e293b; outline: none; transition: all 0.3s;
+        }
+        .mobile-input:focus { border-color: #6366f1; background: #ffffff; box-shadow: 0 0 0 4px rgba(99,102,241,0.1); }
+        .mobile-input:read-only, .mobile-input:disabled { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0; opacity: 0.8; }
+        
+        .drag-handle { width: 45px; height: 5px; background: #cbd5e1; border-radius: 5px; margin: 0 auto 20px auto; }
+        
+        .att-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .att-btn[data-selected="Present"] { background-color: #d1fae5 !important; color: #059669 !important; border-color: #34d399 !important; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
+        .att-btn[data-selected="Absent"] { background-color: #fee2e2 !important; color: #dc2626 !important; border-color: #f87171 !important; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2); }
+
+        body.dark-mode { background-color: #0f172a; color: #f1f5f9; }
+        body.dark-mode .glass-panel { background: rgba(30, 41, 59, 0.95); border-color: #334155; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); }
+        body.dark-mode .glass-nav { background: #1e293b; border-color: #334155; }
+        body.dark-mode .bg-white { background-color: #1e293b !important; border-color: #334155 !important; color: #f8fafc; }
+        body.dark-mode .text-gray-800, body.dark-mode .text-gray-900 { color: #f1f5f9 !important; }
+        body.dark-mode .text-gray-500, body.dark-mode .text-gray-400 { color: #94a3b8 !important; }
+        body.dark-mode .text-indigo-900 { color: #818cf8 !important; }
+        body.dark-mode .bg-gray-50, body.dark-mode .bg-gray-100 { background-color: #0f172a !important; border-color: #334155 !important; color: #f8fafc !important; }
+        body.dark-mode .border-gray-100, body.dark-mode .border-gray-200 { border-color: #334155 !important; }
+        body.dark-mode .mobile-input { background-color: #0f172a !important; border-color: #334155 !important; color: #f8fafc !important; }
+        body.dark-mode .mobile-input:focus { border-color: #818cf8 !important; box-shadow: 0 0 0 4px rgba(129,140,248,0.2) !important; }
+        body.dark-mode #modalContent { background-color: #1e293b !important; }
+        body.dark-mode .mode-btn { background-color: #0f172a !important; border-color: #334155 !important; color: #94a3b8 !important; }
+        body.dark-mode .text-grad { background: linear-gradient(to right, #a78bfa, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .ai-chip { white-space: nowrap; display: inline-flex; align-items: center; }
+        .ai-tools-scroll { display: flex; overflow-x: auto; gap: 0.5rem; padding-bottom: 0.5rem; scroll-snap-type: x mandatory; }
+        .ai-tools-scroll::-webkit-scrollbar { height: 4px; display: block; }
+        .ai-tools-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        body.dark-mode .ai-tools-scroll::-webkit-scrollbar-thumb { background-color: #475569; }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden w-full max-w-500 relative transition-colors duration-300">
+
+    <div id="toast" class="fixed left-1/2 pointer-events-none flex justify-center" style="z-index: 2147483647 !important; top: -100px; opacity: 0; transform: translate(-50%, -20px) scale(0.85); max-width: 95%; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div class="bg-gray-900 text-white px-5 py-3 rounded-3xl shadow-2xl flex items-center justify-center text-[10px] font-black uppercase tracking-widest border border-gray-700 whitespace-nowrap min-w-[180px]">
+            <i class="fas fa-bell text-indigo-400 mr-2 text-sm animate-pulse"></i> <span id="toastMsg">Action Executed</span>
+        </div>
+    </div>
+
+    <div id="globalLoader" class="fixed inset-0 bg-[#f4f7fe] dark-target z-[999] flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-5"></div>
+        <p class="text-indigo-600 font-black tracking-widest text-sm animate-pulse uppercase">INITIALIZING AI SYSTEM...</p>
+        <div id="errorBox" class="hidden w-full bg-red-50 border-2 border-red-200 p-5 rounded-2xl mt-6 shadow-xl"></div>
+    </div>
+
+    <header class="glass-panel mx-4 mt-4 mb-2 rounded-3xl z-20 flex justify-between items-start p-4">
+        <div class="flex flex-col flex-1 min-w-0 pr-2">
+            <h1 class="text-xl font-black tracking-tight text-grad uppercase leading-tight whitespace-normal break-words">VIJAY SIR EDUCATION HUB</h1>
+            <div class="flex items-center space-x-1.5 text-8 font-black text-gray-400 uppercase mt-1 tracking-widest whitespace-nowrap overflow-hidden">
+                <i class="far fa-calendar-alt"></i> <span id="headerDate">--/--/----</span>
+                <span class="text-gray-300">|</span>
+                <i class="far fa-clock"></i> <span id="headerTime">00:00</span>
+            </div>
+        </div>
+        <div class="flex flex-col items-end shrink-0 mt-0.5">
+            <div class="flex items-center bg-red-50 text-red-600 px-1.5 py-0.5 rounded border border-red-100 blink shadow-sm mb-1">
+                <span class="w-1 h-1 bg-red-600 rounded-full mr-1"></span>
+                <span class="text-[7px] font-black uppercase tracking-widest leading-none mt-0.5">AI PRO</span>
+            </div>
+            <span class="font-bold text-gray-400 uppercase tracking-widest" style="font-size: 7px; white-space: nowrap;">Created by Guna</span>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto px-4 w-full">
+        <section id="dashboard" class="view-section active">
+            
+
+
+            <div class="flex justify-between items-end mb-4 px-1">
+                <h2 class="text-2xl font-black text-gray-800 tracking-tight">Overview</h2>
+                <span class="text-10 font-black text-indigo-600 bg-indigo-100 px-2.5 py-1 rounded-lg uppercase">Dashboard</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="grad-card-1 p-5 rounded-24 shadow-lg text-white">
+                    <div class="w-8 h-8 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-users text-sm"></i></div>
+                    <p class="text-9 font-black opacity-80 uppercase tracking-widest">TOTAL STUDENTS</p>
+                    <p class="text-3xl font-black mt-1" id="dash-all">0</p>
+                </div>
+                <div class="grad-card-2 p-5 rounded-24 shadow-lg text-white">
+                    <div class="w-8 h-8 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-check-double text-sm"></i></div>
+                    <p class="text-9 font-black opacity-80 uppercase tracking-widest">PAID THIS MONTH</p>
+                    <p class="text-3xl font-black mt-1" id="dash-paid">0</p>
+                </div>
+                <div class="grad-card-3 p-5 rounded-24 shadow-lg text-white col-span-2 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-white bg-opacity-10 rounded-full blur-2xl"></div>
+                    <div class="relative z-10 w-full">
+                        <div class="flex justify-between items-center w-full mb-1">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-white bg-opacity-20 rounded-lg flex items-center justify-center"><i class="fas fa-wallet text-10"></i></div>
+                                <p class="text-10 font-black opacity-90 uppercase tracking-widest">COLLECTED REVENUE</p>
+                            </div>
+                            <button onclick="toggleRevenue()" class="p-2 active:scale-90 transition"><i id="revenue-eye" class="fas fa-eye-slash text-white opacity-80 text-lg"></i></button>
+                        </div>
+                        <p class="text-4xl font-black" id="dash-amt" data-val="0">₹ •••••</p>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-24 shadow-sm border border-gray-100 col-span-2 flex justify-between items-center relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500"></div>
+                    <div class="ml-2">
+                        <p class="text-10 font-black text-gray-400 uppercase tracking-widest mb-1">PENDING STUDENTS FEES</p>
+                        <p class="text-xl font-black text-gray-800" id="dash-pend">0 <span class="text-xs text-gray-400 font-bold ml-1">Students</span></p>
+                    </div>
+                    <button onclick="navigate('defaulters')" class="w-10 h-10 bg-red-50 text-red-600 rounded-xl flex items-center justify-center active:scale-90 transition"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <h3 class="text-10 font-black text-gray-500 tracking-widest uppercase mb-3 px-1"><i class="fas fa-bolt text-yellow-500 mr-1.5"></i> RECENT PAYMENTS</h3>
+            <div id="recent-list" class="space-y-3"></div>
+        </section>
+
+        <section id="attendance" class="view-section">
+            <div class="flex justify-between items-end mb-6 px-1">
+                <div>
+                    <h2 class="text-2xl font-black text-gray-800 tracking-tight">Attendance</h2>
+                    <p class="text-10 font-black text-gray-400 uppercase tracking-widest mt-1">Mark Daily Status</p>
+                </div>
+                <button onclick="triggerVoiceAttendance()" class="bg-purple-600 text-white px-3 py-2.5 rounded-xl text-xs font-black shadow-lg active:scale-95 transition flex items-center uppercase tracking-wider">
+                    <i class="fas fa-microphone mr-2 animate-pulse"></i> AI Audio
+                </button>
+            </div>
+            
+            <div class="glass-panel rounded-32 p-5 mb-5 shadow-sm">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-10 font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">Class</label>
+                        <select id="attClass" onchange="loadAttendanceStudents()" class="mobile-input bg-gray-50 force-uppercase"><option value="">- SELECT -</option></select>
+                    </div>
+                    <div>
+                        <label class="block text-10 font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">Date</label>
+                        <input type="date" id="attDate" onchange="updateClassStatusIndicator(); loadAttendanceStudents();" class="mobile-input bg-gray-50 text-xs px-2">
+                    </div>
+                </div>
+                <div id="attStatusIndicator" class="mt-3 flex flex-wrap gap-2"></div>
+            </div>
+            
+            <div class="flex justify-between items-center mb-3 px-1">
+                <h3 class="text-10 font-black text-gray-500 tracking-widest uppercase"><i class="fas fa-users text-blue-500 mr-1.5"></i> STUDENT LIST</h3>
+                <button onclick="markAllPresent()" class="text-10 font-black text-green-600 bg-green-50 px-3 py-1 rounded-lg uppercase border border-green-200 active:scale-95 transition">All Present</button>
+            </div>
+            
+            <div id="attendance-list" class="space-y-3 mb-6">
+                <p class="text-center text-gray-400 text-xs font-bold mt-10">Select a class to mark attendance</p>
+            </div>
+            
+            <button onclick="submitAttendance()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-sm mt-2 shadow-lg active:scale-95 transition uppercase tracking-widest flex items-center justify-center">
+                SAVE & SEND ALERTS <i class="fas fa-paper-plane ml-2 text-lg"></i>
+            </button>
+        </section>
+
+        <section id="aihub" class="view-section relative">
+            <div class="flex justify-between items-end mb-4 px-1">
+                <div>
+                    <h2 class="text-2xl font-black text-purple-600 tracking-tight">AI Co-Pilot</h2>
+                    <p class="text-10 font-black text-gray-400 uppercase tracking-widest mt-1">Super-Advanced Tools</p>
+                </div>
+                <span class="text-10 font-black text-white bg-purple-600 px-2.5 py-1 rounded-lg uppercase shadow-md"><i class="fas fa-brain mr-1"></i> Gemini Active</span>
+            </div>
+            
+            <div class="ai-tools-scroll mb-4 pb-2">
+                <button onclick="sendAiCommand('Show my daily todo list for today.')" class="ai-chip text-9 bg-purple-50 text-purple-600 px-4 py-2 rounded-xl font-black uppercase active:scale-95 transition border border-purple-200 snap-center"><i class="fas fa-list-check mr-2"></i> Daily To-Do</button>
+                <button onclick="sendAiCommand('Generate a 20 marks test paper for Physics.')" class="ai-chip text-9 bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl font-black uppercase active:scale-95 transition border border-indigo-200 snap-center"><i class="fas fa-file-signature mr-2"></i> Create Test</button>
+                <button onclick="sendAiCommand('Draft a polite reply to a parent asking for fee extension.')" class="ai-chip text-9 bg-pink-50 text-pink-600 px-4 py-2 rounded-xl font-black uppercase active:scale-95 transition border border-pink-200 snap-center"><i class="fas fa-comments mr-2"></i> Parent Reply</button>
+                <button onclick="sendAiCommand('Analyze revenue projection for the next 30 days based on payments.')" class="ai-chip text-9 bg-green-50 text-green-600 px-4 py-2 rounded-xl font-black uppercase active:scale-95 transition border border-green-200 snap-center"><i class="fas fa-chart-line mr-2"></i> Rev Forecast</button>
+                <button onclick="sendAiCommand('Provide a syllabus pace alert. Are we lagging?')" class="ai-chip text-9 bg-red-50 text-red-600 px-4 py-2 rounded-xl font-black uppercase active:scale-95 transition border border-red-200 snap-center"><i class="fas fa-triangle-exclamation mr-2"></i> Syllabus Alert</button>
+            </div>
+
+            <div id="ai-chat-history" class="space-y-4 mb-20 overflow-y-auto" style="height: 48vh;">
+                <div class="glass-panel p-4 rounded-24 rounded-tl-none border-l-4 border-purple-500 shadow-sm">
+                    <p class="text-xs font-bold text-gray-700 dark:text-gray-200">Hello Vijay Sir! Main aapka autonomous AI Assistant hoon. Upar diye gaye kisi bhi smart tool par click karein ya apna command type karein.</p>
+                </div>
+            </div>
+
+            <div class="fixed bottom-20 left-4 right-4 max-w-500 mx-auto z-30 pb-2">
+                <div class="glass-panel rounded-full p-1.5 flex items-center shadow-xl border border-gray-200 dark:border-gray-700">
+                    <button onclick="simulateAudioInput()" class="w-10 h-10 text-gray-400 hover:text-purple-600 flex items-center justify-center transition"><i class="fas fa-microphone"></i></button>
+                    <input type="text" id="ai-input" placeholder="Type command..." class="flex-1 bg-transparent border-none outline-none px-2 text-sm font-bold text-gray-700 dark:text-gray-200" onkeypress="if(event.key === 'Enter') sendAiCommand(this.value)">
+                    <button onclick="sendAiCommand(document.getElementById('ai-input').value)" class="w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center active:scale-90 transition shadow-md"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <section id="students" class="view-section">
+            <div class="flex justify-between items-end mb-6 px-1">
+                <div>
+                    <h2 class="text-2xl font-black text-gray-800 tracking-tight">Directory</h2>
+                    <p class="text-10 font-black text-gray-400 uppercase tracking-widest mt-1">All Students</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="generateStudentsPDF()" class="bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 px-4 py-3 rounded-2xl font-black text-xs shadow-sm active:scale-95 transition flex items-center border border-gray-200 dark:border-slate-700 uppercase tracking-wider">
+                        <i class="fas fa-file-pdf mr-2 text-red-500 text-sm"></i> Get PDF
+                    </button>
+                    <button onclick="openModal()" class="bg-indigo-600 text-white px-4 py-3 rounded-2xl font-black text-xs shadow-lg active:scale-95 transition flex items-center uppercase tracking-wider"><i class="fas fa-user-plus mr-2"></i> ADD</button>
+                </div>
+            </div>
+            <div class="relative mb-6">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400 text-lg"></i>
+                </div>
+                <input type="text" id="searchInput" oninput="renderStudents()" placeholder="SEARCH BY NAME OR PHONE..." class="mobile-input force-uppercase shadow-sm w-full" style="padding-left: 3.2rem;">
+            </div>
+            <div id="students-list" class="space-y-4"></div>
+        </section>
+
+        <section id="defaulters" class="view-section">
+            <div class="flex justify-between items-end mb-6 px-1">
+                <div>
+                    <h2 class="text-2xl font-black text-red-600 tracking-tight">Pending Dues</h2>
+                    <p class="text-10 font-black text-gray-400 uppercase tracking-widest mt-1">>30 DAYS UNPAID</p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-600"><i class="fas fa-exclamation-triangle text-xl"></i></div>
+            </div>
+            <div id="defaulters-list" class="space-y-4"></div>
+        </section>
+
+        <section id="fee" class="view-section">
+            <div class="text-center mb-8 pt-4">
+                <div class="w-20 h-20 mx-auto bg-green-100 rounded-32 flex items-center justify-center mb-4 transform rotate-3 shadow-sm">
+                    <i class="fas fa-rupee-sign text-4xl text-green-600 transform -rotate-3"></i>
+                </div>
+                <h2 class="text-2xl font-black text-gray-800 tracking-tight">Collect Fee</h2>
+                <p class="text-10 font-black text-gray-400 uppercase tracking-widest mt-1">SECURE PAYMENT ENTRY</p>
+            </div>
+            
+            <div class="glass-panel rounded-32 p-6">
+                <form id="feeForm" onsubmit="processFee(event)" class="space-y-5">
+                    <div>
+                        <label class="block text-10 font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">SELECT CLASS (OPTIONAL)</label>
+                        <select id="feeClass" onchange="populateFeeStudents()" class="mobile-input bg-gray-50"><option value="">-- ALL CLASSES --</option></select>
+                    </div>
+                    <div>
+                        <label class="block text-10 font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">SEARCH STUDENT</label>
+                        <div class="relative">
+                            <input type="text" id="feeStudentSearch" oninput="filterFeeStudents()" placeholder="START TYPING NAME..." class="mobile-input force-uppercase bg-gray-50" autocomplete="off">
+                            <div id="feeStudentList" class="hidden absolute top-full left-0 right-0 bg-white shadow-2xl border border-gray-100 rounded-xl mt-1 z-50 max-h-48 overflow-y-auto p-2"></div>
+                            <input type="hidden" id="feeStudentId" required>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-10 font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">FEE MONTH</label>
+                            <select id="feeMonth" required class="mobile-input bg-gray-50 force-uppercase"><option value="January">Jan</option><option value="February">Feb</option><option value="March">Mar</option><option value="April">Apr</option><option value="May">May</option><option value="June">Jun</option><option value="July">Jul</option><option value="August">Aug</option><option value="September">Sep</option><option value="October">Oct</option><option value="November">Nov</option><option value="December">Dec</option></select>
+                        </div>
+                        <div>
+                            <label class="block text-10 font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">DATE</label>
+                            <input type="date" id="feeDate" required class="mobile-input bg-gray-50 text-xs">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-10 font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">COLLECTED AMOUNT (₹)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <span class="text-green-500 font-black text-lg">₹</span>
+                            </div>
+                            <input type="number" inputmode="numeric" id="feeAmount" required class="mobile-input bg-green-50 text-green-600 text-xl tracking-wider border-green-200" style="padding-left: 2.5rem;" oninput="calculateRemaining()">
+                        </div>
+                        <div id="feeRemainingBox" class="hidden mt-2 text-right">
+                            <span class="text-[9px] font-black uppercase tracking-widest bg-red-50 text-red-500 px-2.5 py-1 rounded-md border border-red-100" id="feeRemainingText">REMAINING: ₹0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <label class="block text-10 font-black text-gray-500 uppercase tracking-widest ml-1 mb-2">PAYMENT MODE</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" onclick="setMode('ONLINE / UPI')" id="mode-UPI" class="mode-btn bg-gray-50 py-3.5 rounded-xl text-11 font-black border-2 border-gray-200 text-gray-500 uppercase flex justify-center items-center"><i class="fas fa-qrcode mr-2 text-lg"></i> ONLINE</button>
+                            <button type="button" onclick="setMode('CASH')" id="mode-CASH" class="mode-btn bg-gray-50 py-3.5 rounded-xl text-11 font-black border-2 border-gray-200 text-gray-500 uppercase flex justify-center items-center"><i class="fas fa-money-bill-wave mr-2 text-lg"></i> CASH</button>
+                            <input type="hidden" id="feeMode" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-black text-sm mt-6 shadow-lg active:scale-95 transition uppercase tracking-widest flex items-center justify-center">
+                        SAVE & AUTO DISPATCH <i class="fas fa-robot ml-2 text-lg"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section id="settings" class="view-section">
+            <div class="flex justify-between items-center mb-6 px-1">
+                <div>
+                    <h2 class="text-2xl font-black text-gray-800 tracking-tight">Configuration</h2>
+                    <p class="text-10 font-black text-gray-400 uppercase tracking-widest mt-1">Manage System Settings</p>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleTheme()" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 active:scale-90 transition shadow-inner">
+                        <i id="theme-icon" class="fas fa-moon text-sm"></i>
+                    </button>
+                    <div class="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100">
+                        <span class="text-9 font-black text-gray-400 uppercase tracking-widest" id="set-lock-label">LOCKED</span>
+                        <button onclick="toggleSetLock()" id="set-lock-btn" class="w-10 h-6 bg-gray-300 rounded-full relative transition-all duration-300 shadow-inner">
+                            <div class="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5 transition-all shadow-sm" id="set-lock-thumb"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <form id="settingsForm" onsubmit="saveSettings(event)">
+                <div class="glass-panel rounded-32 p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
+                        <h3 class="text-10 font-black text-indigo-600 tracking-widest uppercase"><i class="fas fa-coins mr-1.5"></i> Class Fees</h3>
+                        <button type="button" onclick="toggleClsLock()" class="w-7 h-7 bg-red-50 rounded-full flex items-center justify-center text-red-500 active:scale-90 transition shadow-inner">
+                            <i id="cls-lock-icon" class="fas fa-lock text-xs"></i>
+                        </button>
+                    </div>
+                    <div id="dynamicClassesBox" class="space-y-4"></div>
+                    <button type="button" onclick="addNewClassInput()" id="btn-add-cls" disabled class="w-full bg-indigo-50 text-indigo-600 py-3 rounded-xl font-black text-xs mt-4 uppercase disabled:hidden transition-all"><i class="fas fa-plus mr-2"></i> ADD NEW CLASS TIER</button>
+                </div>
+                
+                <div class="glass-panel rounded-32 p-6">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
+                        <h3 class="text-10 font-black text-green-600 tracking-widest uppercase"><i class="fab fa-whatsapp mr-1.5"></i> WhatsApp API config</h3>
+                        <button type="button" onclick="toggleWaLock()" class="w-7 h-7 bg-red-50 rounded-full flex items-center justify-center text-red-500 active:scale-90 transition shadow-inner">
+                            <i id="wa-lock-icon" class="fas fa-lock text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-10 font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">Instance ID</label>
+                            <input type="text" id="waInstanceId" class="mobile-input wa-setting" placeholder="e.g. 123456" disabled>
+                        </div>
+                        <div>
+                            <label class="block text-10 font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">Access Token</label>
+                            <input type="text" id="waToken" class="mobile-input wa-setting" placeholder="e.g. abc123def456" disabled>
+                        </div>
+                    </div>
+                    <button type="submit" id="btn-save-set" disabled class="w-full bg-gray-900 text-white py-5 rounded-2xl font-black mt-6 disabled:opacity-30 transition-all text-xs tracking-widest uppercase shadow-lg active:scale-95">UPDATE ALL SETTINGS</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <button onclick="navigate('fee')" class="fixed bottom-24 right-4 w-14 h-14 bg-green-500 text-white rounded-full shadow-2xl flex items-center justify-center z-50 active:scale-90 transition-transform border-4 border-white dark:border-gray-800">
+        <i class="fas fa-plus text-2xl"></i>
+    </button>
+
+    <nav class="fixed bottom-0 w-full max-w-500 glass-nav flex justify-between px-3 pt-3 pb-safe z-40 rounded-t-3xl border-t border-gray-100">
+        <button onclick="navigate('dashboard')" id="nav-dashboard" class="mob-nav flex-1 flex flex-col items-center pb-2 text-indigo-600">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full mb-0.5 nav-icon-bg bg-indigo-50"><i class="fas fa-home text-lg"></i></div>
+            <span class="text-8 font-black uppercase">Home</span>
+        </button>
+        <button onclick="navigate('students')" id="nav-students" class="mob-nav flex-1 flex flex-col items-center pb-2 text-gray-400">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full mb-0.5 nav-icon-bg"><i class="fas fa-users text-lg"></i></div>
+            <span class="text-8 font-black uppercase">Students</span>
+        </button>
+        <button onclick="navigate('attendance')" id="nav-attendance" class="mob-nav flex-1 flex flex-col items-center pb-2 text-gray-400">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full mb-0.5 nav-icon-bg"><i class="fas fa-clipboard-user text-lg"></i></div>
+            <span class="text-8 font-black uppercase">Attend</span>
+        </button>
+        <button onclick="navigate('aihub')" id="nav-aihub" class="mob-nav flex-1 flex flex-col items-center pb-2 text-gray-400">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full mb-0.5 nav-icon-bg"><i class="fas fa-robot text-lg"></i></div>
+            <span class="text-8 font-black uppercase">AI Hub</span>
+        </button>
+        <button onclick="navigate('settings')" id="nav-settings" class="mob-nav flex-1 flex flex-col items-center pb-2 text-gray-400">
+            <div class="w-8 h-8 flex items-center justify-center rounded-full mb-0.5 nav-icon-bg"><i class="fas fa-cog text-lg"></i></div>
+            <span class="text-8 font-black uppercase">Settings</span>
+        </button>
+    </nav>
+
+    <div id="addModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 z-50 hidden flex flex-col justify-end transition-opacity duration-300">
+        <div class="absolute inset-0" onclick="closeModal()"></div>
+        <div class="bg-white w-full max-w-500 mx-auto rounded-t-32 px-5 pt-3 pb-8 transform transition-transform translate-y-full h-[90vh] overflow-y-auto relative premium-shadow" id="modalContent">
+            <div class="drag-handle"></div>
+            
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-black text-gray-800 uppercase" id="modalTitle">Registration</h3>
+                <div class="flex items-center space-x-3">
+                    <button type="button" id="modalLockBtn" onclick="toggleModalLock()" class="hidden w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 active:scale-90 shadow-sm transition"><i id="modalLockIcon" class="fas fa-lock"></i></button>
+                    <button type="button" onclick="closeModal()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 active:scale-90"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+
+            <div id="aiStudentSummaryCard" class="hidden bg-purple-50 border border-purple-100 rounded-2xl p-3 mb-4">
+                <p class="text-[8px] font-black text-purple-600 uppercase tracking-widest"><i class="fas fa-brain"></i> AI Micro-Metric Insight Vector</p>
+                <p id="aiStudentSummaryText" class="text-10 font-bold text-purple-950 mt-1 uppercase leading-snug"></p>
+                <button type="button" onclick="triggerPtmNoteGeneration()" class="mt-2 bg-purple-600 text-white font-black text-[8px] px-2 py-1 rounded-md uppercase tracking-wider shadow-sm">Get AI PTM Report</button>
+            </div>
+            
+            <form id="addForm" onsubmit="saveStudentToServer(event)" class="space-y-4">
+                <input type="hidden" id="stuId"><input type="hidden" id="stuRowIndex">
+                
+                <div>
+                    <label class="block text-10 font-black text-gray-400 uppercase ml-1 mb-1">Full Name</label>
+                    <input type="text" id="stuName" required class="mobile-input force-uppercase" placeholder="STUDENT NAME" oninput="autoGuessGender()">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-10 font-black text-gray-400 uppercase ml-1 mb-1">Gender</label>
+                        <select id="stuGender" required class="mobile-input bg-white force-uppercase">
+                            <option value="" disabled selected>-- SELECT --</option>
+                            <option value="Male">MALE</option><option value="Female">FEMALE</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-10 font-black text-gray-400 uppercase ml-1 mb-1">Class</label>
+                        <select id="stuClass" required onchange="autoFillSetupFee()" class="mobile-input bg-white"><option value="">-- SELECT --</option></select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-10 font-black text-gray-400 uppercase ml-1 mb-1">WhatsApp Mobile</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <span class="text-sm font-black text-gray-400">+91</span>
+                        </div>
+                        <input type="tel" inputmode="numeric" id="stuPhone" required pattern="[0-9]{10}" maxlength="10" class="mobile-input tracking-widest" placeholder="9876543210" style="padding-left: 3rem;" oninput="this.value=this.value.replace(/[^0-9]/g,''); validatePhone(this)">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-10 font-black text-gray-400 uppercase ml-1 mb-1">Fee (₹)</label><input type="number" inputmode="numeric" id="stuFee" required class="mobile-input border-indigo-200 bg-indigo-50 text-indigo-700 text-lg"></div>
+                    <div><label class="block text-10 font-black text-gray-400 uppercase ml-1 mb-1">Join Date <span class="text-8 normal-case">(DD/MM/YYYY)</span></label><input type="date" id="stuDate" required class="mobile-input text-11 p-[13px]"></div>
+                </div>
+                
+                <div id="deleteBox" class="hidden mt-6 pt-5 border-t border-gray-100">
+                    <div class="bg-red-50 p-3 rounded-20 flex justify-between items-center border border-red-100">
+                        <button type="button" onclick="toggleDelLock()" id="del-lock-btn" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-400 shadow-sm"><i class="fas fa-lock" id="del-lock-icon"></i></button>
+                        <button type="button" id="btn-actual-del" disabled onclick="confirmDeleteFromModal()" class="bg-red-500 text-white px-5 py-3 rounded-xl font-black text-xs uppercase opacity-40 active:scale-95">Delete Data</button>
+                    </div>
+                </div>
+
+                <button type="submit" id="modalSaveBtn" class="w-full bg-gray-900 text-white py-4 rounded-xl font-black text-sm mt-6 active:scale-95 shadow-lg uppercase tracking-widest transition">Save Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // YAHAN APNA NAYA WEB APP URL DAALO
+        // ==========================================
+        const API_URL = 'https://script.google.com/macros/s/AKfycbydSEiXiVsLEzAg75t_hZMOcR4-VoUCokYRPO-ceXmQmH2mT0t_XepxdApN6z3kUXHdOA/exec';
+
+        var appData = { students: [], payments: [], attendance: [], feeSettings: {}, waSettings: { instanceId: '', token: '' }, paidCount: 0, autopilotEnabled: true };
+        
+        function getTargetFeeMonth() {
+            let now = new Date();
+            if (now.getDate() <= 10) {
+                now.setMonth(now.getMonth() - 1);
+            }
+            return now.toLocaleString('default', { month: 'long' });
+        }
+        
+        var currentMonthName = new Date().toLocaleString('default', { month: 'long' });
+        var targetFeeMonth = getTargetFeeMonth();
+        var currentMode = ''; 
+        var currentStudentExpectedFee = 0; 
+        var setLocked = true;
+        var clsLocked = true; 
+        var waLocked = true; 
+        var delLocked = true;
+        var modalLocked = false; 
+        var isRevenueHidden = true;
+
+        // FIXED API CALL ENGINE (No CORS blocks anymore)
+        async function gasApi(action, payload = null) {
+            try {
+                let options = { method: "GET" };
+                if (payload) {
+                    options = {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify({ action: action, data: payload })
+                    };
+                }
+                let url = API_URL + "?action=" + action;
+                const response = await fetch(url, options);
+                return await response.json();
+            } catch(e) { console.error("API Error:", e); return null; }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setInterval(updateClock, 1000); updateClock();
+            document.getElementById('feeMonth').value = currentMonthName;
+            document.getElementById('attDate').valueAsDate = new Date();
+            document.getElementById('feeDate').valueAsDate = new Date();
+            document.getElementById('stuDate').valueAsDate = new Date();
+
+            const cachedData = localStorage.getItem('vsehData');
+            if(cachedData) {
+                appData = JSON.parse(cachedData);
+                document.getElementById('globalLoader').style.display = 'none';
+                syncUIPanels();
+            }
+
+            gasApi('getAppData').then(function(res) {
+                clearTimeout(window.loadTimer);
+                if(res && res.status === 'success') { 
+                    // Fix Attendance Grouping
+                    if (res.attendance && Array.isArray(res.attendance)) {
+                        let groupedAtt = {};
+                        res.attendance.forEach(record => {
+                            let cleanDate = record.date;
+                            try {
+                                let d = new Date(record.date);
+                                if (!isNaN(d)) {
+                                    let y = d.getFullYear();
+                                    let m = ("0" + (d.getMonth() + 1)).slice(-2);
+                                    let day = ("0" + d.getDate()).slice(-2);
+                                    cleanDate = `${y}-${m}-${day}`;
+                                }
+                            } catch(e) {}
+                            
+                            let key = cleanDate + '|' + record.className;
+                            if (!groupedAtt[key]) {
+                                groupedAtt[key] = { date: cleanDate, class: record.className, records: {} };
+                            }
+                            groupedAtt[key].records[record.studentName] = record.status;
+                        });
+                        res.attendance = Object.values(groupedAtt);
+                    }
+
+                    appData = Object.assign(appData, res);
+                    localStorage.setItem('vsehData', JSON.stringify(appData));
+                    if(!cachedData) document.getElementById('globalLoader').style.display = 'none';
+                    syncUIPanels();
+                } else if(!cachedData) {
+                    // Fallback empty UI init if server fails
+                    document.getElementById('globalLoader').style.display = 'none';
+                    syncUIPanels();
+                }
+            });
+            
+            // Dummy initialization if no data loads
+            window.loadTimer = setTimeout(() => {
+                document.getElementById('globalLoader').style.display = 'none';
+                syncUIPanels();
+            }, 3000);
+        });
+
+        function syncUIPanels() {
+            initSettingsUI(); 
+            updateDashboard(); 
+            renderStudents(); 
+            renderDefaulters();
+            runAiBriefingModels();
+        }
+
+        function updateClock() {
+            var now = new Date();
+            var d = ("0" + now.getDate()).slice(-2), m = ("0" + (now.getMonth() + 1)).slice(-2), y = now.getFullYear();
+            document.getElementById('headerDate').innerText = d + "/" + m + "/" + y;
+            document.getElementById('headerTime').innerText = now.toLocaleTimeString('en-GB', { hour12: true });
+        }
+
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.style.top = '12px'; 
+            t.style.opacity = '1';
+            t.style.transform = 'translate(-50%, 0) scale(1)';
+            setTimeout(function() { 
+                t.style.top = '-100px'; 
+                t.style.opacity = '0'; 
+                t.style.transform = 'translate(-50%, -20px) scale(0.85)';
+            }, 3000);
+        }
+
+        function generateId(prefix) {
+            return prefix + '_' + new Date().getTime() + '_' + Math.floor(Math.random() * 1000);
+        }
+
+        function sendSuccessMsg(name, phone, amt, mnth, mode) {
+            var msg = `Payment Successful! 🎉\n\nWe received your payment of *₹${amt}* via *${mode}* for *${mnth.toUpperCase()}* for *${name.toUpperCase()}*.\n\nThank you! ✨\n\n- VIJAY SIR EDUCATION HUB`;
+            // DIRECT BACKGROUND CALL (No Window.open)
+            gasApi('stealthWhatsAppTrigger', { phone: phone, message: msg });
+            showToast("SILENT RECEIPT DISPATCHED");
+        }
+
+        function sendSoftReminder(index, isAuto = false) {
+            let hour = new Date().getHours();
+            if (hour < 9 || hour >= 20) {
+                if (!isAuto) alert("AUTOMATED ALERTS PAUSED: Messages can only be sent between 9:00 AM and 8:00 PM.");
+                return;
+            }
+            
+            let s = appData.students[index];
+            let fee = s.fee || 500;
+            var msg = `Greetings! 🌟\n\nHope *${s.name.toUpperCase()}* is doing well.\n\nThis is a gentle reminder regarding the monthly fee of *₹${fee}* for *${targetFeeMonth.toUpperCase()}*. Kindly process it when convenient.\n\nWarm Regards,\nVIJAY SIR EDUCATION HUB`;
+            
+            gasApi('stealthWhatsAppTrigger', { phone: s.phone, message: msg });
+            
+            if (!s.reminderHistory) s.reminderHistory = [];
+            let now = new Date();
+            let timeStr = now.toLocaleDateString('en-GB') + " " + now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+            s.reminderHistory.push(timeStr);
+            
+            localStorage.setItem('vsehData', JSON.stringify(appData));
+            if (!isAuto) {
+                renderDefaulters();
+                showToast("SILENT REMINDER DISPATCHED");
+            }
+        }
+
+        function runAiBriefingModels() {
+            let activeStudents = appData.students.length;
+            let unpaidCount = activeStudents - appData.paidCount;
+            if (unpaidCount < 0) unpaidCount = 0;
+            
+            let hour = new Date().getHours();
+            let greeting = "Good Morning";
+            if (hour < 5 || hour >= 21) greeting = "Good Night";
+            else if (hour >= 17) greeting = "Good Evening";
+            else if (hour >= 12) greeting = "Good Afternoon";
+            
+            let briefText = "";
+            if (activeStudents === 0) {
+                briefText = `${greeting}! System is stable and ready. Add your first student to begin AI analytics.`;
+            } else if (unpaidCount > 0) {
+                briefText = `${greeting}! System stable. Currently, ${unpaidCount} student(s) have pending fees. Revenue flow is active.`;
+            } else {
+                briefText = `${greeting}! Excellent news: 100% of fees are cleared for all ${activeStudents} active students. Revenue is fully optimized!`;
+            }
+            
+            let briefEl = document.getElementById('aiBriefingText');
+            if(briefEl) briefEl.innerText = briefText;
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            var isDark = document.body.classList.contains('dark-mode');
+            var btn = document.getElementById('theme-icon');
+            btn.className = isDark ? 'fas fa-sun text-yellow-400 text-lg' : 'fas fa-moon text-sm';
+        }
+
+        function toggleRevenue() {
+            isRevenueHidden = !isRevenueHidden;
+            var eye = document.getElementById('revenue-eye');
+            eye.className = isRevenueHidden ? 'fas fa-eye-slash text-white opacity-80 text-lg' : 'fas fa-eye text-white opacity-80 text-lg';
+            var amtEl = document.getElementById('dash-amt');
+            if(isRevenueHidden) amtEl.innerText = '₹ •••••';
+            else amtEl.innerText = '₹' + Number(amtEl.dataset.val).toLocaleString('en-IN');
+        }
+
+        function navigate(id) {
+            var secs = document.querySelectorAll('.view-section');
+            for(var i=0; i<secs.length; i++) secs[i].classList.remove('active');
+            document.getElementById(id).classList.add('active');
+            
+            var navs = document.querySelectorAll('.mob-nav');
+            for(var j=0; j<navs.length; j++) {
+                navs[j].classList.remove('text-indigo-600', 'text-red-500', 'text-purple-600'); navs[j].classList.add('text-gray-400');
+                var bg = navs[j].querySelector('.nav-icon-bg'); if(bg) bg.classList.remove('bg-indigo-50', 'bg-red-50', 'bg-purple-50');
+            }
+            var btn = document.getElementById('nav-'+id);
+            if(btn) {
+                var col = 'text-indigo-600';
+                var bgCol = 'bg-indigo-50';
+                if(id === 'defaulters') { col = 'text-red-500'; bgCol = 'bg-red-50'; }
+                if(id === 'aihub') { col = 'text-purple-600'; bgCol = 'bg-purple-50'; }
+                
+                btn.classList.remove('text-gray-400'); btn.classList.add(col);
+                var bg = btn.querySelector('.nav-icon-bg'); if(bg) bg.classList.add(bgCol);
+            }
+            
+            if(id === 'dashboard') { updateDashboard(); renderDefaulters(); }
+            if(id === 'attendance') { document.getElementById('attDate').valueAsDate = new Date(); updateClassStatusIndicator(); loadAttendanceStudents(); }
+            if(id === 'fee') { 
+                document.getElementById('feeForm').reset(); 
+                document.getElementById('feeDate').valueAsDate = new Date(); 
+                document.getElementById('feeMonth').value = targetFeeMonth;
+                initFeeClasses(); document.getElementById('feeStudentId').value = ''; 
+                document.getElementById('feeStudentList').classList.add('hidden'); 
+                setMode(''); 
+                document.getElementById('feeRemainingBox').classList.add('hidden');
+                currentStudentExpectedFee = 0;
+            }
+            if(id === 'aihub') { var chat = document.getElementById('ai-chat-history'); chat.scrollTop = chat.scrollHeight; }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateDashboard() {
+            document.getElementById('dash-all').innerText = appData.students.length;
+            
+            let uniquePaid = new Set();
+            var amt = 0;
+            
+            for(var i=0; i<appData.payments.length; i++) {
+                let p = appData.payments[i];
+                if(p.month === targetFeeMonth && new Date(p.date).getFullYear() === new Date().getFullYear()) {
+                    amt += Number(p.amount || 0);
+                    uniquePaid.add(p.studentName + '_' + p.className);
+                }
+            }
+            
+            document.getElementById('dash-paid').innerText = uniquePaid.size;
+            
+            var amtEl = document.getElementById('dash-amt');
+            amtEl.dataset.val = amt;
+            amtEl.innerText = isRevenueHidden ? '₹ •••••' : '₹' + amt.toLocaleString('en-IN');
+            
+            var list = document.getElementById('recent-list'); list.innerHTML = '';
+            if(appData.payments.length === 0) { list.innerHTML = '<div class="glass-panel p-6 rounded-24 text-center"><p class="text-10 font-black text-gray-400 uppercase tracking-widest">NO TRANSACTIONS YET</p></div>'; return; }
+            
+            var recent = appData.payments.slice().reverse().slice(0, 5);
+            for(var k=0; k<recent.length; k++) {
+                var p = recent[k];
+                var pDateShow = p.date;
+                let d = new Date(p.date);
+                if (!isNaN(d)) pDateShow = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+                
+                list.innerHTML += `<div class="glass-panel p-4 rounded-24 mb-3 flex justify-between items-center"><div><p class="font-black text-gray-800 text-xs force-uppercase truncate w-32">${p.studentName}</p><p class="text-8 font-bold text-gray-400 mt-0.5 tracking-widest">${p.className} • ${p.month.toUpperCase()}</p></div><div class="text-right"><p class="font-black text-indigo-600 text-sm">₹${p.amount}</p><p class="text-8 font-bold text-gray-400 force-uppercase mt-0.5 tracking-widest">${p.mode||'CASH'} • ${pDateShow}</p></div></div>`;
+            }
+        }
+
+        function loadAttendanceStudents() {
+            var cls = document.getElementById('attClass').value;
+            var dateStr = document.getElementById('attDate').value;
+            var list = document.getElementById('attendance-list');
+            list.innerHTML = '';
+            
+            if(!cls) { list.innerHTML = '<p class="text-center text-gray-400 text-xs font-bold mt-10 uppercase tracking-widest">SELECT A CLASS TO BEGIN</p>'; return; }
+            if(!dateStr) { list.innerHTML = '<p class="text-center text-gray-400 text-xs font-bold mt-10 uppercase tracking-widest">SELECT DATE</p>'; return; }
+            
+            var filtered = appData.students.filter(s => s.class === cls);
+            if(filtered.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 text-xs font-bold mt-10 uppercase tracking-widest">NO STUDENTS IN THIS CLASS</p>'; return; }
+            
+            let existingRecord = null;
+            if (appData.attendance) {
+                existingRecord = appData.attendance.find(a => a.date === dateStr && a.class === cls);
+            }
+            
+            filtered.forEach(s => {
+                let pSel = '';
+                let aSel = '';
+                if (existingRecord && existingRecord.records && existingRecord.records[s.name]) {
+                    if (existingRecord.records[s.name] === 'Present') pSel = 'data-selected="Present"';
+                    else if (existingRecord.records[s.name] === 'Absent') aSel = 'data-selected="Absent"';
+                }
+                
+                list.innerHTML += `
+                <div class="glass-panel p-3 rounded-2xl flex justify-between items-center mb-2" data-student-name="${s.name}">
+                    <div>
+                        <p class="font-black text-gray-800 text-xs force-uppercase">${s.name}</p>
+                        <p class="text-8 font-bold text-gray-400 mt-0.5 tracking-widest">${s.phone}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="setAtt(this, 'Present')" ${pSel} class="att-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 text-gray-400 bg-gray-50 uppercase">P</button>
+                        <button onclick="setAtt(this, 'Absent')" ${aSel} class="att-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200 text-gray-400 bg-gray-50 uppercase">A</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function setAtt(btn, status) {
+            let container = btn.parentElement;
+            let btns = container.querySelectorAll('.att-btn');
+            btns.forEach(b => b.removeAttribute('data-selected'));
+            btn.setAttribute('data-selected', status);
+        }
+
+        function markAllPresent() {
+            let btns = document.querySelectorAll('.att-btn:nth-child(1)');
+            btns.forEach(btn => {
+                btn.setAttribute('data-selected', 'Present');
+                btn.nextElementSibling.removeAttribute('data-selected');
+            });
+        }
+
+        function updateClassStatusIndicator() {
+            let date = document.getElementById('attDate').value;
+            let indicator = document.getElementById('attStatusIndicator');
+            if(!indicator) return;
+            indicator.innerHTML = '';
+            
+            if(!date) return;
+            
+            let classes = Object.keys(appData.feeSettings);
+            if(classes.length === 0) classes = [...new Set(appData.students.map(s => s.class))].filter(Boolean);
+            
+            classes.sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
+            
+            let html = '';
+            classes.forEach(cls => {
+                let isDone = appData.attendance && appData.attendance.find(a => a.date === date && a.class === cls);
+                if (isDone) {
+                    html += `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-[9px] font-black uppercase"><i class="fas fa-check mr-1"></i> ${cls}</span>`;
+                } else {
+                    html += `<span class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-[9px] font-black uppercase"><i class="fas fa-clock mr-1"></i> ${cls}</span>`;
+                }
+            });
+            indicator.innerHTML = html;
+        }
+
+        async function submitAttendance() {
+            let date = document.getElementById('attDate').value;
+            let cls = document.getElementById('attClass').value;
+            if(!date || !cls) { showToast("SELECT CLASS & DATE"); return; }
+            
+            if(!appData.attendance) appData.attendance = [];
+            
+            let records = {};
+            let recordsArray = [];
+            let absentMessages = [];
+            let container = document.getElementById('attendance-list');
+            let rows = container.children;
+            for(let i=0; i<rows.length; i++) {
+                let name = rows[i].getAttribute('data-student-name');
+                if(!name) continue;
+                let selectedBtn = rows[i].querySelector('.att-btn[data-selected]');
+                records[name] = selectedBtn ? selectedBtn.getAttribute('data-selected') : 'Unmarked';
+                
+                let targetStudent = appData.students.find(s => s.name === name && s.class === cls);
+                if (!targetStudent) targetStudent = appData.students.find(s => s.name === name);
+                
+                if (records[name] !== 'Unmarked') {
+                    recordsArray.push({
+                        id: generateId('ATT'),
+                        studentId: targetStudent ? (targetStudent.id || '') : '',
+                        studentName: name,
+                        class: cls,
+                        date: date,
+                        month: currentMonthName,
+                        status: records[name]
+                    });
+                }
+                
+                if (records[name] === 'Absent') {
+                    let wasAlreadyAbsent = false;
+                    let existingRecord = appData.attendance.find(a => a.date === date && a.class === cls);
+                    if (existingRecord && existingRecord.records && existingRecord.records[name] === 'Absent') {
+                        wasAlreadyAbsent = true;
+                    }
+                    
+                    if (!wasAlreadyAbsent && targetStudent && targetStudent.phone) {
+                        var formattedDate = date.split('-').reverse().join('/');
+                        var msg = `Attendance Alert ⚠️\n\nDear Parent, your child *${name.toUpperCase()}* is marked *ABSENT* today (${formattedDate}).\n\nPlease ensure they attend regularly.\n\nWarm Regards,\nVIJAY SIR EDUCATION HUB`;
+                        absentMessages.push({ phone: targetStudent.phone, message: msg });
+                    }
+                }
+            }
+            
+            appData.attendance = appData.attendance.filter(a => !(a.date === date && a.class === cls));
+            appData.attendance.push({ date: date, class: cls, records: records, timestamp: new Date().getTime() });
+            
+            if(recordsArray.length > 0) {
+                gasApi('saveAttendanceBatch', recordsArray);
+            }
+            
+            localStorage.setItem('vsehData', JSON.stringify(appData));
+            showToast(`ATTENDANCE SAVED FOR ${cls}`);
+            updateClassStatusIndicator();
+            
+            for(let msgData of absentMessages) {
+                if (appData.waSettings && appData.waSettings.instanceId && appData.waSettings.token) {
+                    let waUrl = `https://api.ultramsg.com/${appData.waSettings.instanceId}/messages/chat`;
+                    let waBody = new URLSearchParams({
+                        token: appData.waSettings.token,
+                        to: "+91" + msgData.phone,
+                        body: msgData.message
+                    });
+                    try {
+                        await fetch(waUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: waBody.toString(),
+                            mode: 'no-cors'
+                        });
+                    } catch(e) {}
+                } else {
+                    await gasApi('stealthWhatsAppTrigger', msgData);
+                }
+                await new Promise(r => setTimeout(r, 800));
+            }
+        }
+
+        function triggerVoiceAttendance() {
+            showToast("AI AUDIO LISTENING...");
+        }
+
+        async function sendAiCommand(cmd) {
+            if (!cmd) return;
+            let history = document.getElementById('ai-chat-history');
+            history.innerHTML += `
+            <div class="flex justify-end mb-4">
+                <div class="bg-purple-600 text-white p-3 rounded-24 rounded-tr-none shadow-md max-w-[80%]">
+                    <p class="text-xs font-bold">${cmd}</p>
+                </div>
+            </div>`;
+            document.getElementById('ai-input').value = '';
+            
+            let typingId = 'typing-' + Date.now();
+            history.innerHTML += `
+            <div id="${typingId}" class="flex justify-start mb-4">
+                <div class="glass-panel p-3 rounded-24 rounded-tl-none border-l-4 border-purple-500 shadow-sm max-w-[90%]">
+                    <p class="text-xs font-bold text-gray-400 italic animate-pulse">Processing...</p>
+                </div>
+            </div>`;
+            history.scrollTop = history.scrollHeight;
+
+            try {
+                let res = await gasApi('processAiCommand', { 
+                    prompt: cmd, 
+                    context: { students: appData.students, paidCount: appData.paidCount } 
+                });
+                
+                let el = document.getElementById(typingId);
+                if (el) el.remove();
+                
+                let reply = "System Error: Unable to reach AI Core.";
+                let rawReply = "";
+                if (res && res.status === 'success' && res.result && res.result.message) {
+                    rawReply = res.result.message;
+                    reply = rawReply.replace(/\n/g, '<br>');
+                } else if (res && res.message) {
+                    reply = "Error: " + res.message;
+                }
+                
+                // Parse AI Actions
+                let cmdMatch = rawReply.match(/<CMD>(.*?)<\/CMD>/);
+                if (cmdMatch) {
+                    let actions = cmdMatch[1].split('|');
+                    if (actions[0] === 'MARK_ATTENDANCE') {
+                        let targetClass = actions[1].trim();
+                        let targetStatus = actions[2].trim();
+                        
+                        document.getElementById('attClass').value = targetClass;
+                        loadAttendanceStudents();
+                        
+                        setTimeout(() => {
+                            let container = document.getElementById('attendance-list');
+                            let rows = container.children;
+                            let markedCount = 0;
+                            for(let i=0; i<rows.length; i++) {
+                                let btns = rows[i].querySelectorAll('.att-btn');
+                                btns.forEach(b => b.removeAttribute('data-selected'));
+                                let btnToClick = Array.from(btns).find(b => b.innerText.trim() === (targetStatus.toLowerCase() === 'present' ? 'P' : 'A'));
+                                if (btnToClick) {
+                                    btnToClick.setAttribute('data-selected', targetStatus);
+                                    markedCount++;
+                                }
+                            }
+                            if (markedCount > 0) submitAttendance();
+                        }, 500);
+                        
+                        reply = reply.replace(cmdMatch[0], '').trim();
+                        if (reply === "") reply = `Successfully marked ${targetStatus} for class ${targetClass}.`;
+                    }
+                }
+
+                history.innerHTML += `
+                <div class="flex justify-start mb-4">
+                    <div class="glass-panel p-4 rounded-24 rounded-tl-none border-l-4 border-purple-500 shadow-sm max-w-[90%]">
+                        <p class="text-xs font-bold text-gray-700 dark:text-gray-200 leading-relaxed">${reply}</p>
+                    </div>
+                </div>`;
+            } catch(e) {
+                let el = document.getElementById(typingId);
+                if (el) el.remove();
+                history.innerHTML += `
+                <div class="flex justify-start mb-4">
+                    <div class="glass-panel p-4 rounded-24 rounded-tl-none border-l-4 border-red-500 shadow-sm max-w-[90%]">
+                        <p class="text-xs font-bold text-red-500">Connection failed.</p>
+                    </div>
+                </div>`;
+            }
+            history.scrollTop = history.scrollHeight;
+        }
+
+        function simulateAudioInput() {
+            showToast("VOICE INPUT TRIGGERED");
+        }
+
+        function toggleAccordion(id) {
+            let el = document.getElementById(id);
+            let icon = document.getElementById(id + '-icon');
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                icon.style.transform = 'rotate(90deg)';
+            } else {
+                el.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function renderStudents() {
+            let list = document.getElementById('students-list');
+            let search = document.getElementById('searchInput').value.toLowerCase();
+            list.innerHTML = '';
+            
+            let mapped = appData.students.map((s, idx) => ({...s, originalIndex: idx}));
+            let filtered = mapped.filter(s => s.name.toLowerCase().includes(search) || s.phone.includes(search));
+            
+            if(filtered.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 text-xs font-bold mt-10 uppercase tracking-widest">NO STUDENTS FOUND</p>'; return; }
+            
+            let grouped = {};
+            filtered.forEach(s => {
+                let cls = s.class || 'Unassigned';
+                if(!grouped[cls]) grouped[cls] = [];
+                grouped[cls].push(s);
+            });
+            
+            let classes = Object.keys(grouped).sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
+            
+            classes.forEach((cls, i) => {
+                let clsId = 'cls-acc-' + i;
+                let studentsHTML = '';
+                
+                grouped[cls].forEach(s => {
+                    studentsHTML += `
+                    <div class="bg-white p-4 rounded-24 flex justify-between items-center cursor-pointer mb-2 shadow-sm border border-gray-50 active:scale-95 transition" onclick="editStudent(${s.originalIndex})">
+                        <div>
+                            <p class="font-black text-gray-800 text-sm force-uppercase">${s.name}</p>
+                            <p class="text-[10px] font-bold text-gray-400 mt-1 tracking-widest">Fee: ₹${s.fee || 500} • ${s.phone}</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
+                            <i class="fas fa-chevron-right text-[10px]"></i>
+                        </div>
+                    </div>`;
+                });
+                
+                list.innerHTML += `
+                <div class="glass-panel rounded-32 mb-4 overflow-hidden shadow-sm">
+                    <div class="p-4 flex justify-between items-center cursor-pointer bg-white bg-opacity-40 hover:bg-opacity-80 transition active:scale-[0.98]" onclick="toggleAccordion('${clsId}')">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 border border-indigo-200">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-gray-800 text-sm uppercase tracking-wider">CLASS ${cls}</h3>
+                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${grouped[cls].length} STUDENTS</p>
+                            </div>
+                        </div>
+                        <div class="w-8 h-8 flex items-center justify-center text-gray-400 transition-transform duration-300" id="${clsId}-icon" style="transform: rotate(${search !== '' ? '90deg' : '0deg'});">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div id="${clsId}" class="p-3 bg-gray-50 bg-opacity-50 transition-all ${search !== '' ? '' : 'hidden'}">
+                        ${studentsHTML}
+                    </div>
+                </div>`;
+            });
+        }
+
+        function renderDefaulters() {
+            let list = document.getElementById('defaulters-list');
+            list.innerHTML = '';
+            
+            let defaulters = [];
+            let now = new Date();
+            
+            appData.students.forEach((s, index) => {
+                let hasPaid = appData.payments.some(p => p.studentName === s.name && p.className === s.class && p.month === targetFeeMonth && new Date(p.date).getFullYear() === now.getFullYear());
+                
+                if (!hasPaid) {
+                    let joinDate = new Date(s.date);
+                    if (!isNaN(joinDate)) {
+                        let diffDays = Math.ceil(Math.abs(now - joinDate) / (1000 * 60 * 60 * 24)); 
+                        if (diffDays >= 30) {
+                            defaulters.push({ student: s, index: index });
+                        }
+                    }
+                }
+            });
+            
+            if(defaulters.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 text-xs font-bold mt-10 uppercase tracking-widest">NO DEFAULTERS</p>'; return; }
+            
+            let count = 0;
+            defaulters.forEach(def => {
+                let s = def.student;
+                let index = def.index;
+                
+                let hour = now.getHours();
+                if (appData.autopilotEnabled && hour >= 9 && hour < 20) {
+                    let lastSentTime = 0;
+                    if (s.reminderHistory && s.reminderHistory.length > 0) {
+                        let lastStr = s.reminderHistory[s.reminderHistory.length - 1];
+                        let parts = lastStr.split(' ');
+                        if (parts.length === 2) {
+                            let dateParts = parts[0].split('/');
+                            if (dateParts.length === 3) {
+                                lastSentTime = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]).getTime();
+                            }
+                        }
+                    }
+                    
+                    let daysSinceLastReminded = (now.getTime() - lastSentTime) / (1000 * 60 * 60 * 24);
+                    if (daysSinceLastReminded > 7) {
+                        setTimeout(() => { sendSoftReminder(index, true); }, 1500 * count);
+                    }
+                }
+
+                if (count >= 3) return;
+                count++;
+                
+                let reminderHTML = '';
+                if(s.reminderHistory && s.reminderHistory.length > 0) {
+                    let lastSent = s.reminderHistory[s.reminderHistory.length - 1];
+                    reminderHTML = `
+                    <div class="text-right flex flex-col items-end">
+                        <span class="text-[8px] font-bold text-gray-400 mb-1 leading-tight">LAST SENT:<br>${lastSent} (${s.reminderHistory.length}x)</span>
+                        <button onclick="sendSoftReminder(${index})" class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase shadow-sm border border-gray-200 active:scale-95 transition">RESEND</button>
+                    </div>`;
+                } else {
+                    reminderHTML = `<button onclick="sendSoftReminder(${index})" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-black uppercase shadow-sm active:scale-95 transition">REMIND</button>`;
+                }
+                
+                list.innerHTML += `
+                <div class="bg-white border-l-4 border-red-500 p-3 rounded-24 shadow-sm flex justify-between items-center mb-3">
+                    <div>
+                        <p class="font-black text-gray-800 text-sm force-uppercase">${s.name}</p>
+                        <p class="text-9 font-bold text-gray-400 mt-1 tracking-widest">${s.class} • Pending ${targetFeeMonth}</p>
+                    </div>
+                    ${reminderHTML}
+                </div>`;
+            });
+        }
+        function generateStudentsPDF() { 
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(16);
+                doc.text("VIJAY SIR EDUCATION HUB - STUDENTS", 14, 22);
+                
+                let sorted = [...appData.students].sort((a, b) => (parseInt(a.class) || 0) - (parseInt(b.class) || 0));
+                
+                let bodyData = sorted.map(s => [
+                    s.name.toUpperCase(), 
+                    s.class, 
+                    s.phone, 
+                    s.gender, 
+                    s.fee
+                ]);
+
+                doc.autoTable({
+                    startY: 30,
+                    head: [['Name', 'Class', 'Phone', 'Gender', 'Fee (Rs)']],
+                    body: bodyData,
+                    theme: 'grid',
+                    headStyles: { fillColor: [99, 102, 241] }
+                });
+                
+                doc.save('VSEH_Students.pdf');
+                showToast("PDF DOWNLOADED");
+            } catch(e) {
+                console.error(e);
+                alert("PDF Generation Failed.");
+            }
+        }
+        function openModal() {
+            document.getElementById('addModal').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('modalContent').classList.remove('translate-y-full'); }, 10);
+            document.getElementById('addForm').reset();
+            document.getElementById('stuDate').valueAsDate = new Date();
+            document.getElementById('modalTitle').innerText = 'Registration';
+            document.getElementById('deleteBox').classList.add('hidden');
+            document.getElementById('stuRowIndex').value = '';
+        }
+
+        function closeModal() {
+            document.getElementById('modalContent').classList.add('translate-y-full');
+            setTimeout(() => { document.getElementById('addModal').classList.add('hidden'); }, 300);
+        }
+
+        function editStudent(index) {
+            let s = appData.students[index];
+            openModal();
+            document.getElementById('modalTitle').innerText = 'Edit Profile';
+            document.getElementById('stuName').value = s.name;
+            document.getElementById('stuGender').value = s.gender;
+            document.getElementById('stuClass').value = s.class;
+            document.getElementById('stuPhone').value = s.phone;
+            document.getElementById('stuFee').value = s.fee;
+            document.getElementById('stuDate').value = s.date;
+            
+            document.getElementById('stuRowIndex').value = index;
+            document.getElementById('stuId').value = s.id || '';
+            document.getElementById('deleteBox').classList.remove('hidden');
+            
+            delLocked = true;
+            document.getElementById('del-lock-icon').className = 'fas fa-lock';
+            document.getElementById('btn-actual-del').disabled = true;
+            document.getElementById('btn-actual-del').classList.add('opacity-40');
+        }
+
+        function toggleModalLock() {}
+
+        function saveStudentToServer(e) {
+            e.preventDefault();
+            let name = document.getElementById('stuName').value;
+            let phone = document.getElementById('stuPhone').value;
+            let cls = document.getElementById('stuClass').value;
+            let gender = document.getElementById('stuGender').value;
+            let fee = document.getElementById('stuFee').value;
+            let date = document.getElementById('stuDate').value;
+            let idx = document.getElementById('stuRowIndex').value;
+            let currentId = document.getElementById('stuId').value;
+            if (!currentId) currentId = generateId('STU');
+            
+            let studentData = { id: currentId, name, phone, class: cls, gender, fee, date };
+            
+            if (idx === '') {
+                appData.students.push(studentData);
+                studentData.isEdit = false;
+                showToast("STUDENT ADDED");
+            } else {
+                appData.students[parseInt(idx)] = studentData;
+                studentData.isEdit = true;
+                showToast("STUDENT UPDATED");
+            }
+            
+            gasApi('saveStudent', studentData);
+            
+            closeModal();
+            renderStudents();
+            updateDashboard();
+            localStorage.setItem('vsehData', JSON.stringify(appData));
+        }
+
+        function processFee(e) {
+            e.preventDefault();
+            let amount = document.getElementById('feeAmount').value;
+            let mode = document.getElementById('feeMode').value;
+            if(!mode) { alert('Please select a payment mode.'); return; }
+            let name = document.getElementById('feeStudentSearch').value;
+            let mnth = document.getElementById('feeMonth').value;
+            let cls = document.getElementById('feeClass').value || 'Class';
+            let targetStudent = appData.students.find(s => s.name === name && s.class === cls);
+            if (!targetStudent) targetStudent = appData.students.find(s => s.name === name);
+            let phone = targetStudent ? targetStudent.phone : '';
+
+            let paymentData = {
+                id: generateId('TXN'),
+                studentId: targetStudent ? (targetStudent.id || '') : '',
+                studentName: name, 
+                amount, 
+                mode, 
+                month: mnth, 
+                date: document.getElementById('feeDate').value, 
+                className: cls,
+                phone: phone
+            };
+
+            appData.payments.push(paymentData);
+            appData.paidCount++;
+            
+            gasApi('savePayment', paymentData);
+            
+            sendSuccessMsg(name, phone, amount, mnth, mode);
+            document.getElementById('feeForm').reset();
+            document.getElementById('feeDate').valueAsDate = new Date();
+            document.getElementById('feeMonth').value = currentMonthName;
+            document.getElementById('feeRemainingBox').classList.add('hidden');
+            currentStudentExpectedFee = 0;
+            setMode('');
+            updateDashboard();
+            localStorage.setItem('vsehData', JSON.stringify(appData));
+        }
+
+        function populateFeeStudents() {
+            filterFeeStudents();
+        }
+        
+        function filterFeeStudents() {
+            let search = document.getElementById('feeStudentSearch').value.toLowerCase();
+            let clsFilter = document.getElementById('feeClass').value;
+            let listEl = document.getElementById('feeStudentList');
+            
+            if (search.length < 1 && !clsFilter) {
+                listEl.classList.add('hidden');
+                return;
+            }
+            
+            let filtered = appData.students.filter(s => {
+                let matchClass = clsFilter ? s.class === clsFilter : true;
+                let matchName = s.name.toLowerCase().includes(search) || s.phone.includes(search);
+                return matchClass && matchName;
+            });
+            
+            listEl.innerHTML = '';
+            if (filtered.length > 0) {
+                filtered.forEach(s => {
+                    listEl.innerHTML += `
+                    <div class="p-2 border-b border-gray-100 hover:bg-gray-50 cursor-pointer text-xs font-black force-uppercase" onclick="selectFeeStudent('${s.name}', '${s.class}')">
+                        ${s.name} - ${s.class} (${s.phone})
+                    </div>`;
+                });
+                listEl.classList.remove('hidden');
+            } else {
+                listEl.innerHTML = '<div class="p-2 text-xs font-bold text-gray-400">No student found</div>';
+                listEl.classList.remove('hidden');
+            }
+        }
+        function selectFeeStudent(name, cls) {
+            document.getElementById('feeStudentSearch').value = name;
+            document.getElementById('feeClass').value = cls;
+            document.getElementById('feeStudentList').classList.add('hidden');
+            
+            let targetStudent = appData.students.find(s => s.name === name && s.class === cls);
+            if (!targetStudent) targetStudent = appData.students.find(s => s.name === name);
+            if (targetStudent) {
+                currentStudentExpectedFee = parseInt(targetStudent.fee) || 0;
+                document.getElementById('feeAmount').value = currentStudentExpectedFee;
+                calculateRemaining();
+            }
+        }
+
+        function calculateRemaining() {
+            let entered = parseInt(document.getElementById('feeAmount').value) || 0;
+            let remainingBox = document.getElementById('feeRemainingBox');
+            let remainingText = document.getElementById('feeRemainingText');
+            
+            if (currentStudentExpectedFee > 0 && entered < currentStudentExpectedFee) {
+                let diff = currentStudentExpectedFee - entered;
+                remainingBox.classList.remove('hidden');
+                remainingText.innerText = 'REMAINING: ₹' + diff;
+            } else {
+                remainingBox.classList.add('hidden');
+            }
+        }
+
+        function setMode(mode) {
+            document.getElementById('feeMode').value = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => {
+                b.classList.remove('border-green-500', 'bg-green-50', 'text-green-600');
+                b.classList.add('border-gray-200', 'bg-gray-50', 'text-gray-500');
+            });
+            if(mode) {
+                let btn = document.getElementById(mode === 'CASH' ? 'mode-CASH' : 'mode-UPI');
+                if(btn) {
+                    btn.classList.remove('border-gray-200', 'bg-gray-50', 'text-gray-500');
+                    btn.classList.add('border-green-500', 'bg-green-50', 'text-green-600');
+                }
+            }
+        }
+
+        function initSettingsUI() {
+            let box = document.getElementById('dynamicClassesBox');
+            box.innerHTML = '';
+            for (let cls in appData.feeSettings) {
+                box.insertAdjacentHTML('beforeend', `
+                <div class="flex items-center space-x-2 mb-2 cls-row">
+                    <input type="text" class="mobile-input cls-name flex-1" value="${cls}" ${clsLocked ? 'disabled' : ''}>
+                    <input type="number" class="mobile-input cls-fee flex-1" value="${appData.feeSettings[cls]}" ${clsLocked ? 'disabled' : ''}>
+                    <button type="button" onclick="this.parentElement.remove()" class="del-cls-btn w-12 shrink-0 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 h-12 active:scale-95 transition" ${clsLocked ? 'disabled style="opacity:0.3"' : ''}><i class="fas fa-trash"></i></button>
+                </div>`);
+            }
+            if (appData.waSettings) {
+                document.getElementById('waInstanceId').value = appData.waSettings.instanceId || '';
+                document.getElementById('waToken').value = appData.waSettings.token || '';
+            }
+            initFeeClasses();
+        }
+
+        function initFeeClasses() {
+            let classes = Object.keys(appData.feeSettings);
+            if(classes.length === 0) classes = ['10th', '9th', '8th'];
+            
+            let selects = ['attClass', 'stuClass', 'feeClass'];
+            selects.forEach(id => {
+                let el = document.getElementById(id);
+                if(!el) return;
+                let oldVal = el.value;
+                el.innerHTML = '<option value="">-- SELECT --</option>';
+                classes.forEach(c => {
+                    el.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+                el.value = oldVal;
+            });
+        }
+
+        function toggleSetLock() {
+            setLocked = !setLocked;
+            document.getElementById('set-lock-thumb').style.transform = setLocked ? 'translateX(0)' : 'translateX(100%)';
+            document.getElementById('set-lock-btn').classList.toggle('bg-gray-300', setLocked);
+            document.getElementById('set-lock-btn').classList.toggle('bg-green-500', !setLocked);
+            document.getElementById('set-lock-label').innerText = setLocked ? 'LOCKED' : 'UNLOCKED';
+            
+            if (setLocked) {
+                if (!clsLocked) toggleClsLock();
+                if (!waLocked) toggleWaLock();
+            }
+        }
+
+        function checkSaveBtnState() {
+            document.getElementById('btn-save-set').disabled = (clsLocked && waLocked);
+        }
+        
+        function toggleClsLock() {
+            if (setLocked && clsLocked) { showToast("UNLOCK MASTER LOCK FIRST"); return; }
+            clsLocked = !clsLocked;
+            let icon = document.getElementById('cls-lock-icon');
+            icon.className = clsLocked ? 'fas fa-lock text-xs' : 'fas fa-unlock text-xs';
+            icon.parentElement.className = clsLocked ? 'w-7 h-7 bg-red-50 rounded-full flex items-center justify-center text-red-500 active:scale-90 transition shadow-inner' : 'w-7 h-7 bg-green-50 rounded-full flex items-center justify-center text-green-500 active:scale-90 transition shadow-inner';
+            
+            document.getElementById('btn-add-cls').disabled = clsLocked;
+            document.querySelectorAll('.cls-row input').forEach(input => input.disabled = clsLocked);
+            document.querySelectorAll('.del-cls-btn').forEach(btn => {
+                btn.disabled = clsLocked;
+                btn.style.opacity = clsLocked ? '0.3' : '1';
+            });
+            checkSaveBtnState();
+        }
+
+        function toggleWaLock() {
+            if (setLocked && waLocked) { showToast("UNLOCK MASTER LOCK FIRST"); return; }
+            waLocked = !waLocked;
+            let icon = document.getElementById('wa-lock-icon');
+            icon.className = waLocked ? 'fas fa-lock text-xs' : 'fas fa-unlock text-xs';
+            icon.parentElement.className = waLocked ? 'w-7 h-7 bg-red-50 rounded-full flex items-center justify-center text-red-500 active:scale-90 transition shadow-inner' : 'w-7 h-7 bg-green-50 rounded-full flex items-center justify-center text-green-500 active:scale-90 transition shadow-inner';
+            
+            document.querySelectorAll('.wa-setting').forEach(input => input.disabled = waLocked);
+            checkSaveBtnState();
+        }
+        
+        function saveSettings(e) {
+            e.preventDefault();
+            let rows = document.querySelectorAll('.cls-row');
+            appData.feeSettings = {};
+            rows.forEach(r => {
+                let n = r.querySelector('.cls-name').value;
+                let f = r.querySelector('.cls-fee').value;
+                if (n && f) appData.feeSettings[n] = f;
+            });
+            appData.waSettings = {
+                instanceId: document.getElementById('waInstanceId').value,
+                token: document.getElementById('waToken').value
+            };
+            
+            gasApi('saveFeeSettings', appData.feeSettings);
+            
+            showToast("SETTINGS SAVED");
+            if (!setLocked) toggleSetLock();
+            initFeeClasses();
+            localStorage.setItem('vsehData', JSON.stringify(appData));
+        }
+        
+        function addNewClassInput() {
+            let box = document.getElementById('dynamicClassesBox');
+            box.insertAdjacentHTML('beforeend', `
+            <div class="flex items-center space-x-2 mb-2 cls-row">
+                <input type="text" class="mobile-input cls-name flex-1" placeholder="Class Name">
+                <input type="number" class="mobile-input cls-fee flex-1" placeholder="Default Fee">
+                <button type="button" onclick="this.parentElement.remove()" class="del-cls-btn w-12 shrink-0 bg-red-50 text-red-500 rounded-xl flex items-center justify-center border border-red-100 h-12 active:scale-95 transition"><i class="fas fa-trash"></i></button>
+            </div>`);
+        }
+
+        function autoGuessGender() {
+            // Placeholder logic for future AI guess
+        }
+        
+        function autoFillSetupFee() {
+            let cls = document.getElementById('stuClass').value;
+            if (appData.feeSettings[cls]) {
+                document.getElementById('stuFee').value = appData.feeSettings[cls];
+            }
+        }
+        
+        function validatePhone(el) {
+            // HTML pattern handles this already
+        }
+        
+        function toggleDelLock() {
+            delLocked = !delLocked;
+            document.getElementById('del-lock-icon').className = delLocked ? 'fas fa-lock' : 'fas fa-lock-open text-red-500';
+            document.getElementById('btn-actual-del').disabled = delLocked;
+            document.getElementById('btn-actual-del').classList.toggle('opacity-40', delLocked);
+        }
+        
+        function confirmDeleteFromModal() {
+            let idx = document.getElementById('stuRowIndex').value;
+            if (idx !== '') {
+                let targetId = appData.students[parseInt(idx)].id;
+                if (targetId) {
+                    gasApi('deleteStudent', { id: targetId });
+                }
+                
+                appData.students.splice(parseInt(idx), 1);
+                showToast("STUDENT DELETED");
+                closeModal();
+                renderStudents();
+                updateDashboard();
+                localStorage.setItem('vsehData', JSON.stringify(appData));
+            }
+        }
+        
+        function triggerPtmNoteGeneration() {
+            showToast("GENERATING AI REPORT...");
+        }
+    </script>
+</body>
+</html>

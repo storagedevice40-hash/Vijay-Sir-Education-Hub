@@ -10,8 +10,8 @@
     <meta name="apple-mobile-web-app-title" content="VSEH PRO">
     <meta name="theme-color" content="#f4f7fe">
     
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991148.png">
-    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991148.png">
+    <link rel="apple-touch-icon" href="https://drive.google.com/uc?export=view&id=1lxAOWmReeHcyHJc3tbuhsOPvMu39qaYh">
+    <link rel="shortcut icon" href="https://drive.google.com/uc?export=view&id=1lxAOWmReeHcyHJc3tbuhsOPvMu39qaYh">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
@@ -147,12 +147,12 @@
             </div>
             
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="grad-card-1 p-5 rounded-24 shadow-lg text-white">
+                <div onclick="navigate('students')" class="grad-card-1 p-5 rounded-24 shadow-lg text-white cursor-pointer active:scale-95 transition">
                     <div class="w-8 h-8 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-users text-sm"></i></div>
                     <p class="text-9 font-black opacity-80 uppercase tracking-widest">TOTAL STUDENTS</p>
                     <p class="text-3xl font-black mt-1" id="dash-all">0</p>
                 </div>
-                <div class="grad-card-2 p-5 rounded-24 shadow-lg text-white">
+                <div onclick="navigate('paid-students')" class="grad-card-2 p-5 rounded-24 shadow-lg text-white cursor-pointer active:scale-95 transition">
                     <div class="w-8 h-8 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-3"><i class="fas fa-check-double text-sm"></i></div>
                     <p class="text-9 font-black opacity-80 uppercase tracking-widest">PAID THIS MONTH</p>
                     <p class="text-3xl font-black mt-1" id="dash-paid">0</p>
@@ -286,6 +286,17 @@
                 <div class="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-600"><i class="fas fa-exclamation-triangle text-xl"></i></div>
             </div>
             <div id="defaulters-list" class="space-y-4"></div>
+        </section>
+
+        <section id="paid-students" class="view-section">
+            <div class="flex justify-between items-end mb-6 px-1">
+                <div>
+                    <h2 class="text-2xl font-black text-green-600 tracking-tight">Paid This Month</h2>
+                    <p class="text-10 font-black text-gray-400 uppercase tracking-widest mt-1">CLEARED DUES</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center text-green-600"><i class="fas fa-check-circle text-xl"></i></div>
+            </div>
+            <div id="paid-students-list" class="space-y-4"></div>
         </section>
 
         <section id="fee" class="view-section">
@@ -608,6 +619,7 @@
             updateDashboard(); 
             renderStudents(); 
             renderDefaulters();
+            renderPaidStudents();
             runAiBriefingModels();
         }
 
@@ -728,7 +740,8 @@
                 var bg = btn.querySelector('.nav-icon-bg'); if(bg) bg.classList.add(bgCol);
             }
             
-            if(id === 'dashboard') { updateDashboard(); renderDefaulters(); }
+            if(id === 'dashboard') { updateDashboard(); renderDefaulters(); renderPaidStudents(); }
+            if(id === 'paid-students') { renderPaidStudents(); }
             if(id === 'attendance') { document.getElementById('attDate').valueAsDate = new Date(); updateClassStatusIndicator(); loadAttendanceStudents(); }
             if(id === 'fee') { 
                 document.getElementById('feeForm').reset(); 
@@ -1180,6 +1193,37 @@
                 </div>`;
             });
         }
+
+        function renderPaidStudents() {
+            let list = document.getElementById('paid-students-list');
+            list.innerHTML = '';
+            
+            let paidStudents = [];
+            let now = new Date();
+            
+            appData.students.forEach((s, index) => {
+                let hasPaid = appData.payments.some(p => p.studentName === s.name && p.className === s.class && p.month === targetFeeMonth && new Date(p.date).getFullYear() === now.getFullYear());
+                
+                if (hasPaid) {
+                    paidStudents.push({ student: s, index: index });
+                }
+            });
+            
+            if(paidStudents.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 text-xs font-bold mt-10 uppercase tracking-widest">NO FEES COLLECTED THIS MONTH YET</p>'; return; }
+            
+            paidStudents.forEach(paid => {
+                let s = paid.student;
+                list.innerHTML += `
+                <div class="bg-white border-l-4 border-green-500 p-3 rounded-24 shadow-sm flex justify-between items-center mb-3">
+                    <div>
+                        <p class="font-black text-gray-800 text-sm force-uppercase">${s.name}</p>
+                        <p class="text-9 font-bold text-gray-400 mt-1 tracking-widest">${s.class} • Paid ${targetFeeMonth}</p>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-500"><i class="fas fa-check"></i></div>
+                </div>`;
+            });
+        }
+
         function generateStudentsPDF() { 
             try {
                 const { jsPDF } = window.jspdf;
